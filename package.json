@@ -1,0 +1,38 @@
+{
+  "name": "nmmtry",
+  "version": "1.0.0",
+  "description": "nmmtry",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cbinbin/nmmtry.git"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cbinbin/nmmtry/issues"
+  },
+  "homepage": "https://github.com/Cbinbin/nmmtry#readme",
+  "dependencies": {
+    "body-parser": "^1.18.1",
+    "cors": "^2.8.4",
+    "crypto": "^1.0.1",
+    "dotenv": "^4.0.0",
+    "express": "^4.15.4",
+    "jsonwebtoken": "^8.0.1",
+    "jssha": "^2.3.1",
+    "log4js": "^2.3.3",
+    "mongoose": "^4.11.12",
+    "superagent": "^3.6.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3"
+  }
+}
