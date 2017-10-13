@@ -8,6 +8,7 @@ router.get('/', (req, res)=> {
   // userMo.save().then((user)=> {
   //   res.send(user)
   // })
+  res.send('ok')
 })
 
 module.exports = router

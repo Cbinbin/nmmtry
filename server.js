@@ -21,8 +21,10 @@ require('dotenv').config()
 
 const port = process.env.PORT
   , home = require('./home')
+  , routes = require('./routes')
 
-server.use('/', home)
+server.use('/', routes)
+server.use('/home', home)
 
 // mylogger.noteInfo('I am a Info')
 // mylogger.noteError('I am a Error')

@@ -1,14 +1,19 @@
 const log4js = require('log4js')
+  , fs = require('fs')
+  , logsDir = 'logs'
 
 class LogNoted {
   constructor(obj) {
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir)
+    }
     var appendersParam = {
       console: {　
         type: 'console',
       },
       infoFile: {
         type: 'dateFile',
-        filename: 'logs/info/logInfo',
+        filename: `${logsDir}/info/logInfo`,
         pattern: "-yyyyMMdd.log",
         maxLogSize: 1024,
         alwaysIncludePattern: true,
@@ -16,7 +21,7 @@ class LogNoted {
       },
       errorFile: {
         type: 'dateFile',
-        filename: 'logs/error/logError',
+        filename: `${logsDir}/error/logError`,
         pattern: "-yyyyMMdd.log",
         maxLogSize: 1024,
         alwaysIncludePattern: true,
@@ -24,7 +29,7 @@ class LogNoted {
       },
       warnFile: {
         type: 'dateFile',
-        filename: 'logs/warn/logWarn',
+        filename: `${logsDir}/warn/logWarn`,
         pattern: "-yyyyMMdd.log",
         maxLogSize: 1024,
         alwaysIncludePattern: true,
@@ -32,7 +37,7 @@ class LogNoted {
       },
       debugFile: {
         type: 'dateFile',
-        filename: 'logs/debug/logDebug',
+        filename: `${logsDir}/debug/logDebug`,
         pattern: "-yyyyMMdd.log",
         maxLogSize: 1024,
         alwaysIncludePattern: true,
@@ -40,7 +45,7 @@ class LogNoted {
       },
       traceFile: {
         type: 'dateFile',
-        filename: 'logs/trace/logTrace',
+        filename: `${logsDir}/trace/logTrace`,
         pattern: "-yyyyMMdd.log",
         maxLogSize: 1024,
         alwaysIncludePattern: true,
@@ -48,7 +53,7 @@ class LogNoted {
       },
       fatalFile: {
         type: 'dateFile',
-        filename: 'logs/fatal/logFatal',
+        filename: `${logsDir}/fatal/logFatal`,
         pattern: "-yyyyMMdd.log",
         maxLogSize: 1024,
         alwaysIncludePattern: true,
