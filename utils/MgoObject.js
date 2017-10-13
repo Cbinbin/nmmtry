@@ -1,11 +1,11 @@
 const mongoose = require('mongoose')
+  , Schema = mongoose.Schema
   , queryString = require('querystring')
   , fs = require('fs')
   , collections = mongoose.Collection
 
 class MgoObject {
   constructor(str) {
-    const Schema = mongoose.Schema
     var schemaParam = str === 'Wechatuser' ? {
       openId: { type: String, required: true },
       unionId: { type: String },
@@ -20,14 +20,11 @@ class MgoObject {
       createdTime: { type: Date, default: Date.now },
       updatedTime: { type: Date, default: Date.now },
     }
+    
     var schemaParamKeys = Object.keys(schemaParam)
-      , schemaParamValues = []
-    schemaParamKeys.forEach((item, index)=> {
-      schemaParam[item].type = objFieldToStr(schemaParam[item].type)
-      if(schemaParam[item].default) schemaParam[item].default = objFieldToStr(schemaParam[item].default)
-      if(schemaParam[item].required) schemaParam[item].required = objFieldToStr(schemaParam[item].required)
-      schemaParamValues[index] = queryString.stringify(schemaParam[item])
-    })
+      , schemaParamValues = changeSchemaParam(schemaParam).schemaParamValues
+      , schemaParamRe = changeSchemaParam(schemaParam).schemaParamRe
+    
     try {
       var paramData = fs.readFileSync(`utils/paramFile/${str}.txt`)
         , paramDataArr = paramData.toString().split(',')
@@ -46,7 +43,6 @@ class MgoObject {
       })
       schemaParam = schemaParamObj
     } catch(error) {
-      schemaParam = schemaParam
       fs.writeFile(`utils/paramFile/${str}.txt`, [schemaParamKeys, schemaParamValues], (err)=> {
         if(err) return console.error('fs.writeFile error')
       })
@@ -60,6 +56,7 @@ class MgoObject {
 
     this.mgoSchema = newSchema
     this.schemaParam = schemaParam
+    this.schemaParamRe = schemaParamRe
     this.modelName = str
     this.objValue = {}
     // this.mgoModel = null
@@ -67,21 +64,24 @@ class MgoObject {
   }
 
   set(key, value) {
-    console.log(this.mgoSchema.get(key))
+    // console.log(this.mgoSchema.get(key))
     // if(!this.mgoSchema.get(key)) {
     // }
-    this.schemaParam[key] = { type: objFieldToStr(instanceofValue(value)) }
+    if(!this.schemaParam[key]) {
+      this.schemaParam[key] = { type: instanceofValue(value) }
+    }
     var schemaParamKeys = Object.keys(this.schemaParam)
-      , schemaParamValues = []
-    // console.log(this.schemaParam)
-    schemaParamKeys.forEach((item, index)=> {
-      this.schemaParam[item].type = objFieldToStr(this.schemaParam[item].type)
-      if(this.schemaParam[item].default) this.schemaParam[item].default = objFieldToStr(this.schemaParam[item].default)
-      if(this.schemaParam[item].required) this.schemaParam[item].required = objFieldToStr(this.schemaParam[item].required)
-      schemaParamValues[index] = queryString.stringify(this.schemaParam[item])
-    })
+      , schemaParamValues = changeSchemaParam(this.schemaParam).schemaParamValues
+      , schemaParamRe = changeSchemaParam(this.schemaParam).schemaParamRe
+    
     fs.writeFile(`utils/paramFile/${this.modelName}.txt`, [schemaParamKeys, schemaParamValues], (err)=> {
       if(err) return console.error('fs.writeFile error')
+    })
+    this.mgoSchema = new Schema(this.schemaParam, {
+      timestamps: {
+        createdAt: 'createdTime',
+        updatedAt: 'updatedTime',
+      }
     })
     this.objValue[key] = value || null
   }
@@ -105,6 +105,27 @@ class MgoObject {
     return saveone
   }
 
+}
+
+
+
+
+function changeSchemaParam(schemaParam) {
+  var schemaParamKeys = Object.keys(schemaParam)
+    , schemaParamValues = []
+    , schemaParamRe = {}
+  schemaParamKeys.forEach((item, index)=> {
+    var schemaParamOne = {}
+    schemaParamOne.type = objFieldToStr(schemaParam[item].type)
+    if(schemaParam[item].default) schemaParamOne.default = objFieldToStr(schemaParam[item].default)
+    if(schemaParam[item].required) schemaParamOne.required = objFieldToStr(schemaParam[item].required)
+    schemaParamRe[item] = schemaParamOne
+    schemaParamValues[index] = queryString.stringify(schemaParamOne)
+  })
+  return {
+    schemaParamRe: schemaParamRe,
+    schemaParamValues: schemaParamValues,
+  }
 }
 
 function objFieldToStr(type) {
@@ -147,12 +168,20 @@ function strToObjField(str) {
 
 function instanceofValue(val) {
   var type = null
-  if(val instanceof String) type = String
-  else if(val instanceof Number) type = Number
-  else if(val instanceof Boolean) type = Boolean
-  else if(val instanceof Date) type = Date
-  else if(val instanceof Array) type = Array
-  else if(val instanceof Object) type = Object
+  if(typeof val == 'object') {
+    if(val instanceof String) type = String
+    else if(val instanceof Number) type = Number
+    else if(val instanceof Boolean) type = Boolean
+    else if(val instanceof Date) type = Date
+    else if(val instanceof Array) type = Array
+    else if(val instanceof Object) type = Object
+  } else if(typeof val == 'string') {
+    type = String
+  } else if(typeof val == 'boolean') {
+    type = Boolean
+  } else if(typeof val == 'number') {
+    type = Number
+  }
   return type
 }
 
